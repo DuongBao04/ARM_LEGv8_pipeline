@@ -5,9 +5,8 @@ This is an implementation of LEGv8 architecture pipeline, support data forwardin
 + [**Introduction**](#introduction)
 + [**Architecture**](#Architecture)
 + [**Pipelining with Forwarding and Hazard Detection Unit**](#pipelining-with-forwarding-and-hazard-detection-unit)
-+ [**Final Overview**](#final-overview)
 + [**Testing with Instructions**](#testing-with-instructions)
-+ [**Expected Results**](#expected-results)
++ [**Results**](#results)
 + [**Instruction Pipeline**](#instruction-pipeline)
 + [**Compilation and Elaboration**](#compilation-and-elaboration)
 + [**Results**](#results)
@@ -35,3 +34,41 @@ Let's start with an abstract view of the CPU. The CPU comprises of a ***Program 
 
 The Program Counter or PC reads the instructions from the instruction memory, then modifies the Register module to hold the current instruction. The Registers pass the values in instruction memory to the ALU to perform operations. Depending on the type of operation performed, the result may need to be loaded from or stored to the data memory. If the result needs to be loaded from the data memory, it can be written back to the Register module to perform any further operations.
 ![](images/Architecture.png)
+
+## Pipelining with Forwarding and Hazard Detection Unit
+Pipelining is an implementation technique in which multiple instructions are
+overlapped in execution.
+LEGv8 instructions classically take five steps:
+
+1. **Instruction Fetch** or *IF* -> Fetch instruction from memory.  
+2. **Instruction Decode** or *ID* -> Read registers and decode the instruction.
+3. **Execute** or *EX* -> Execute the operation or calculate an address. 
+4. **Memory** or *MEM* -> Access an operand in data memory (if necessary). 
+5. **Write Back** or *WB* -> Write the result into a register (if necessary).
+
+![Pipeline Architecture](images/Pipeline.png)
+
+## Testing with Instructions
+The Instruction Memory is initialized with the following instructions,
+
+1. Testing pipeline.
+```assembly
+ADDI X1, X0, #5   → 0x91001401
+ADDI X2, X0, #10  → 0x91002802
+ADDI X3, X0, #15  → 0x91003C03
+```
+
+2. Testing data forwarding
+```assembly
+ADDI X4, X3, #3   → 0x91000C64
+```
+
+3. Testing Hazard Detection Unit.
+```assembly
+LDUR X5, [X6, #0] → 0xF8400065
+ADD X6, X5, X4    → 0x8B0400A6
+```
+
+## Results
+All the data are succesfully stored in register
+![Result](images/result.png)
